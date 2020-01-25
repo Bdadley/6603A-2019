@@ -4,8 +4,8 @@
 
 
 int totalTicks = 1800;
-double TPI = 840.0/(4*M_PI);
-double TPD = 6.33;
+double DPI = 28.64788977;
+double degCoef = 2.570;
 //DO NOT TOUCH THESE FUNCTIONS
  void moveForwards(int distance, int mySpeed=64)
  {
@@ -13,11 +13,11 @@ double TPD = 6.33;
    backRight.tare_position();
    frontLeft.tare_position();
    frontRight.tare_position();
-   frontLeft.move_absolute(distance * TPI, mySpeed);
-   frontRight.move_absolute(distance * TPI, mySpeed);
-   backLeft.move_absolute(distance * TPI, 64);
-   backRight.move_absolute(distance * TPI, mySpeed);
-   while(backLeft.get_position() < distance * TPI && backRight.get_position() < distance * TPI)
+   frontLeft.move_absolute(distance * DPI, mySpeed);
+   frontRight.move_absolute(distance * DPI, mySpeed);
+   backLeft.move_absolute(distance * DPI, 64);
+   backRight.move_absolute(distance * DPI, mySpeed);
+   while(backLeft.get_position() < distance * DPI && backRight.get_position() < distance * DPI)
    {
      pros::delay(2);
    }
@@ -31,11 +31,11 @@ double TPD = 6.33;
    frontLeft.tare_position();
    frontRight.tare_position();
 
-   frontLeft.move_absolute(-distance * TPI, -mySpeed);
-   frontRight.move_absolute(-distance * TPI, -mySpeed);
-   backLeft.move_absolute(-distance * TPI, -mySpeed);
-   backRight.move_absolute(-distance * TPI, -mySpeed);
-   while(abs(backLeft.get_position()) < distance * TPI && abs(backRight.get_position()) < distance * TPI)
+   frontLeft.move_absolute(-distance * DPI, -mySpeed);
+   frontRight.move_absolute(-distance * DPI, -mySpeed);
+   backLeft.move_absolute(-distance * DPI, -mySpeed);
+   backRight.move_absolute(-distance * DPI, -mySpeed);
+   while(abs(backLeft.get_position()) < distance * DPI && abs(backRight.get_position()) < distance * DPI)
    {
      pros::delay(2);
    }
@@ -48,11 +48,11 @@ void turnLeft(int degrees)
   backRight.tare_position();
   frontLeft.tare_position();
   frontRight.tare_position();
-  frontLeft.move_absolute(-degrees * TPD * myTeam, -48);
-  frontRight.move_absolute(degrees * TPD * myTeam, 48);
-  backLeft.move_absolute(-degrees * TPD * myTeam, -48);
-  backRight.move_absolute(degrees * TPD* myTeam, 48);
-  while(abs(backLeft.get_position()) < degrees * TPD && abs(backRight.get_position()) < degrees * TPD)
+  frontLeft.move_absolute(-degrees * degCoef * myTeam, -48);
+  frontRight.move_absolute(degrees * degCoef * myTeam, 48);
+  backLeft.move_absolute(-degrees * degCoef * myTeam, -48);
+  backRight.move_absolute(degrees * degCoef * myTeam, 48);
+  while(abs(backLeft.get_position()) < degrees * degCoef && abs(backRight.get_position()) < degrees * degCoef)
   {
     pros::delay(2);
   }
@@ -66,11 +66,11 @@ void turnRight(int degrees)
   frontLeft.tare_position();
   frontRight.tare_position();
 
-  frontLeft.move_absolute(degrees * TPD * myTeam, 48);
-  frontRight.move_absolute(-degrees * TPD * myTeam, -48);
-  backLeft.move_absolute(degrees * TPD * myTeam, 48);
-  backRight.move_absolute(-degrees * TPD * myTeam, -48);
-  while(abs(backLeft.get_position()) < degrees * TPD)
+  frontLeft.move_absolute(degrees * degCoef * myTeam, 48);
+  frontRight.move_absolute(-degrees * degCoef * myTeam, -48);
+  backLeft.move_absolute(degrees * degCoef * myTeam, 48);
+  backRight.move_absolute(-degrees * degCoef * myTeam, -48);
+  while(abs(backLeft.get_position()) < degrees * degCoef && abs(backRight.get_position()) < degrees * degCoef)
   {
     pros::delay(2);
   }
@@ -115,7 +115,7 @@ void turnRight(int degrees)
    intake2.move(0);
    angleAdjuster.tare_position();
    angleAdjuster.move(-105);
-   while(angleAdjuster.get_position() > -2350 * (percentage/100.))
+   while(angleAdjuster.get_position() > -2300 * (percentage/100.))
    {
      pros::delay(2);
      if(angleAdjuster.get_position() < -1650)
@@ -142,15 +142,13 @@ void turnRight(int degrees)
    intake1.move(0);
    intake2.move(0);
    angleAdjuster.move(-30);
-   pros::delay(400);
+   pros::delay(300);
    angleAdjuster.move(127);
    arm.move(-127);
    angleAdjuster.move(0);
-   pros::delay(1000);
-   arm.move(0);
-   pros::delay(100);
+   pros::delay(600);
    arm.move(127);
-   pros::delay(800);
+   pros::delay(600);
    arm.move(0);
    pros::delay(200);
  }
@@ -166,10 +164,10 @@ void dispose()
   intake1.move(0);
   intake2.move(0);
   reverseIntake();
-  pros::delay(100);
+  pros::delay(250);
   stopIntake();
   raiseTray(100);
-  moveForwards(2, 20);
+  moveForwards(1, 127);
   pros::delay(1000);
   backLeft.move(-20);
   frontRight.move(-20);
@@ -193,65 +191,38 @@ void dispose()
 //team: 1 = red, -1 = blue
 
 void autonomous() {
-  //deploy();
+  deploy();
   if(true)//selectedAuton == 1)
   {
     startIntake();
-    moveForwards(44);
-    pros::delay(1000);
-    turnRight(20);
-    moveForwards(5);
-    pros::delay(500);
-    moveBackwards(5);
+    //moveForwards(44);
+    moveForwards(42); //-
+    pros::delay(200);
+    //turnRight(20);
+    //moveForwards(5);
+    //pros::delay(500);
+    //moveBackwards(10);
+    //moveBackwards(5); //-
     stopIntake();
     maintain();
-    turnLeft(20);
-    pros::delay(200);
-    moveBackwards(28, 75);
-    turnLeft(133);
-    moveForwards(10);
+    //turnLeft(20);
+    //pros::delay(200);
+    moveBackwards(18, 75);
+    turnLeft(135);
+    moveForwards(16);
     dispose();
   }
   else if(selectedAuton == 2)
   {
-    //ALL AUTON CODE GOES HERE
+
 
   }
   else if(selectedAuton == 3)
   {
-    startIntake();
-    moveForwards(45);
-    pros::delay(500);
-    stopIntake();
-    turnRight(150);
-    moveForwards(37);
-    turnLeft(149);
-    startIntake();
-    moveForwards(40);
-    pros::delay(500);
-    stopIntake();
-    maintain();
-    moveBackwards(10);
-    turnLeft(135);
-    moveForwards(42);
-    dispose();
+
   }
   else
   {
-    startIntake(); //Intake pre-load
-    moveForwards(45); //Pick up second row
-    pros::delay(500);
-    stopIntake();
-    turnRight(33); //Point torwards first row
-    moveBackwards(41, 127); //Move to first row
-    turnLeft(48);
-    startIntake();
-    moveForwards(40); //Pick up first row
-    pros::delay(500);
-    maintain();
-    moveBackwards(29, 127); //Return to original x position
-    turnLeft(148);
-    moveForwards(16); //Move to small zone
-    dispose();
+
   }
 }
