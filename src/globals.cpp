@@ -17,5 +17,5 @@ pros::Motor arm(14, pros::E_MOTOR_GEARSET_36);
 
 
 //Auton
-int selectedAuton = 1;
+int selectedAuton = 0;
 int myTeam = 1;
