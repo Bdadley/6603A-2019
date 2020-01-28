@@ -152,13 +152,13 @@ void turnRight(int degrees)
    intake1.move(0);
    intake2.move(0);
    angleAdjuster.move(-30);
-   pros::delay(300);
+   pros::delay(200);
    angleAdjuster.move(127);
    arm.move(-127);
    angleAdjuster.move(0);
-   pros::delay(600);
+   pros::delay(750);
    arm.move(127);
-   pros::delay(600);
+   pros::delay(750);
    arm.move(0);
    pros::delay(200);
  }
@@ -172,29 +172,31 @@ void maintain()
 
 void dispose(int finDistance = 15)
 {
-  finishedLifting = false;
-  intake1.move(0);
+  finishedLifting = false; //Used for compatibility with tower-stacking functions
+  intake1.move(0); //Stop the intake (in case it is moving already)
   intake2.move(0);
-  reverseIntake();
+  reverseIntake(); //Lowers the cube into the robot's "hand," allowing for easier stacking
   pros::delay(250);
-  stopIntake();
-  raiseTray(100);
-  moveForwards(1, 127);
+  stopIntake(); //Stop last command
+  raiseTray(100); //Raise the tray to the vertical position in order to stack
+  backLeft.move(32); //-----------------------
+  backRight.move(32);
+  frontLeft.move(32); //Move forward in order to stabilize the stack
+  frontRight.move(32);
+  pros::delay(450); //------------------------
+  backLeft.move(0); //Stop Movement
+  backRight.move(0);
+  frontLeft.move(0);
+  frontRight.move(0);
   pros::delay(1000);
-  backLeft.move(-20);
+  backLeft.move(-20); //----------------------
   frontRight.move(-20);
-  frontLeft.move(-20);
+  frontLeft.move(-20); //Move Backwards
   backRight.move(-20);
-  pros::delay(200);
-  lowerTray(20);
-  //backLeft.move(-30);
-  //frontRight.move(-30);
-  //frontLeft.move(-30);
-  //backRight.move(-30);
-  moveBackwards(finDistance + 1);
-  pros::delay(1000);
-  lowerTray(60);
-  backLeft.move(0);
+  pros::delay(200); //------------------------
+  moveBackwards(finDistance); //Move backwards finDistance inches. Used for precise control over movement
+  lowerTray(85); //Lower the tray back to starting position
+  backLeft.move(0); //Stop robot. (In case it is still moving for whatever reason)
   frontRight.move(0);
   frontLeft.move(0);
   backRight.move(0);
@@ -284,7 +286,7 @@ void putCubeInHand()
 
 void autonomous() {
 
-  if(selectedAuton == 1) //Back Auton
+  if(selectedAuton == 2) //Back Auton
   {
     deploy();
     startIntake();
@@ -305,7 +307,7 @@ void autonomous() {
     moveForwards(16); //Move into small zone
     dispose(); //Stack all five cubes
   }
-  else if(selectedAuton == 2) //Front Auton
+  else if(selectedAuton == 3) //Front Auton
   {
     //Put Cube on back of robot.
     moveBackwards(12); //Move cube into zone
@@ -313,7 +315,7 @@ void autonomous() {
     moveForwards(12); //Move out of zone
     deploy();
   }
-  else if(selectedAuton == 3) //Skills
+  else if(selectedAuton == 4) //Skills
   {
     deploy();
     startIntake();
@@ -325,24 +327,15 @@ void autonomous() {
     turnLeft(135); //Turn towards small zone
     moveForwards(16); //Move into small zone
     dispose(16); //Stack five cubes and move back XX inches in order to align robot for medium tower
-    turnLeft(135); //Turn towards Medium tower
-    moveForwards(35); //Move towards Medium tower
+    turnRight(135);
+    moveForwards(18);
+    turnRight(20);
     startIntake();
-    moveForwards(9); //Collect cube next to Medium Tower
+    moveForwards(10);
     pros::delay(500);
-    stopIntake();
-    moveBackwards(4); //Align robot for easier tower stacking
-    putCubeInHand(); //Move cube from tray to rollers
-    mediumTowerStack(); //Stack cube in Medium tower
-    moveBackwards(40); //Move backwards and align for phase 3
-    turnLeft(90); //Turn towards the line of 4 cubes on other half of the field
-    startIntake();
-    moveForwards(96); //Collect line of 4 cubes on the other half of the field
-    stopIntake();
-    maintain();
-    turnLeft(45); //Turn towards the small zone
-    moveForwards(16); //Move into the small zone
-    dispose(); //Stack the stack of 4-5 cubes.
+    moveBackwards(4);
+    mediumTowerStack();
+
 
   }
   else

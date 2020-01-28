@@ -38,6 +38,11 @@ void opcontrol() {
 			backLeft.move(-40);
 			frontLeft.move(-40);
 		}
+		else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT) == 1)
+		{
+			backLeft.move(64);
+			frontLeft.move(64);
+		}
 		else {
 			backLeft.move(0);
 			frontLeft.move(0);
@@ -57,6 +62,11 @@ void opcontrol() {
 		{
 			backRight.move(-40);
 			frontRight.move(-40);
+		}
+		else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT) == 1)
+		{
+			backRight.move(64);
+			frontRight.move(64);
 		}
 		else {
 			backRight.move(0);
@@ -92,7 +102,7 @@ void opcontrol() {
 		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_A) == 1)// && angleAdjuster.get_position() < 50)
 		{
 			liftingArm = true;
-			if(angleAdjuster.get_position() > -850)
+			if(angleAdjuster.get_position() > -800)
 			{
 				angleAdjuster.move(-95);
 			}
@@ -120,7 +130,7 @@ void opcontrol() {
 		else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_Y) == 1)
 		{
 			liftingArm = true;
-			if(angleAdjuster.get_position() > -850)
+			if(angleAdjuster.get_position() > -800)
 			{
 				angleAdjuster.move(-95);
 			}
@@ -220,6 +230,12 @@ void opcontrol() {
 			intake2.move(0);
 		}
 
+
+		//Misc. - Resets angleAdjuster encoder value to 0. Should onyl be used if code breaks somehow.
+		if (master.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT) == 1)
+		{
+			angleAdjuster.tare_position();
+		}
 		pros::delay(20); //DO NOT TOUCH!!! Should say "pros::delay(20);"
 	}
 }
