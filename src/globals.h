@@ -1,5 +1,6 @@
 #include "main.h"
 
+extern pros::Imu imu;
 
 extern pros::Motor backLeft;
 extern pros::Motor backRight;

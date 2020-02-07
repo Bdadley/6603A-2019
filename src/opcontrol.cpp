@@ -15,7 +15,7 @@ void opcontrol() {
 	const int deadzone = 40; //The distance that you can move the joystick without making the bot move. Used to prevent accidental movement.
   bool liftingArm = false; //Checks to see if the bot is currently executing the tower task
 	int upperLiftLimit = 2600; //The farthest that the tray can rotate before stopping.
-
+	int movePower = 0;
 	//Clear Encoders
 	angleAdjuster.tare_position(); //Set tray encoder to 0
 	arm.tare_position(); //Set arm encoder to 0
@@ -173,17 +173,27 @@ void opcontrol() {
 		//Loading Dock Angle Adjustment
 		if(liftingArm == false)
 		{
+
+			movePower = (((upperLiftLimit - fabs(angleAdjuster.get_position()))/upperLiftLimit) * 127) + 20;
 			if(master.get_digital(pros::E_CONTROLLER_DIGITAL_X) == 1 && master.get_digital(pros::E_CONTROLLER_DIGITAL_B) == 0)
 			{
-				if(angleAdjuster.get_position() * -1 < 1650)
+				//if(angleAdjuster.get_position() * -1 < 1650)
+				//{
+				//	angleAdjuster.move(-127); //If the tray has not reached a certain point, lift fast
+				//}
+				//else if(angleAdjuster.get_position() * -1 < upperLiftLimit)
+				if(angleAdjuster.get_position() * -1 < upperLiftLimit)
 				{
-					angleAdjuster.move(-127); //If the tray has not reached a certain point, lift fast
+					if(movePower > 127)
+					{
+						angleAdjuster.move(-127); //Once it reaches that point, lift slowwer -- for more precise lifting
+					}
+					else
+					{
+						angleAdjuster.move(-1 * movePower);
+					}
 				}
-				else if(angleAdjuster.get_position() * -1 < upperLiftLimit)
-				{
-					angleAdjuster.move(-65); //Once it reaches that point, lift slowwer -- for more precise lifting
-				}
-				else if(angleAdjuster.get_position() * -1 > upperLiftLimit)
+				else// if(angleAdjuster.get_position() * -1 > upperLiftLimit)
 				{
 					angleAdjuster.move(0); //Do not move the tray past a certain point
 				}

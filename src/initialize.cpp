@@ -2,8 +2,9 @@
 #include "globals.h"
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
+pros::Imu imu (17);
 
-int phase = 1;
+int phase = 0;
 int team = 0;
 int teamIndex = -1;
 int position = 0;
@@ -188,11 +189,18 @@ void disabled() {
 void competition_initialize()
 {
 	pros::lcd::initialize();
-	pros::lcd::register_btn0_cb(on_left_button);
-	pros::lcd::register_btn1_cb(on_center_button);
-	pros::lcd::register_btn2_cb(on_right_button);
+	imu.reset();
+	while(imu.is_calibrating())
+	{
+			pros::lcd::set_text(0, "Calibrating...");
+	}
+	phase = 4;
+	//pros::lcd::register_btn0_cb(on_left_button);
+	//pros::lcd::register_btn1_cb(on_center_button);
+	//pros::lcd::register_btn2_cb(on_right_button);
+
 	//Auton Selector
-	pros::lcd::set_text(0, "Select A Team:");
-	pros::lcd::set_text(1, "[Red]   Blue    Skills ");
+	//pros::lcd::set_text(0, "Select A Team:");
+	//pros::lcd::set_text(1, "[Red]   Blue    Skills ");
 
 }
