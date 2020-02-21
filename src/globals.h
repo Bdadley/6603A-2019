@@ -14,5 +14,8 @@ extern pros::Motor angleAdjuster;
 extern pros::Motor arm;
 extern pros::Motor arm2;
 
+extern pros::ADIAnalogIn potentiometer;
+extern pros::ADIDigitalIn limitSwitch;
+
 extern int selectedAuton;
 extern int myTeam;

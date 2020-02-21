@@ -15,6 +15,10 @@ pros::Motor angleAdjuster(18, pros::E_MOTOR_GEARSET_36);
 //Initialize Arms
 pros::Motor arm(14, pros::E_MOTOR_GEARSET_36);
 
+//Initialize Sensors
+pros::ADIAnalogIn potentiometer('G');
+pros::ADIDigitalIn limitSwitch('H');
+
 //Auton
 int selectedAuton = 0;
 int myTeam = 1;
