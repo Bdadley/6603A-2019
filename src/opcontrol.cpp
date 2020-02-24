@@ -2,6 +2,7 @@
 #include "globals.h"
 
 
+
 pros::ADIAnalogIn lightSensor('A');
 
 //THIS IS THE DRIVER CONTROL FILE
@@ -114,14 +115,14 @@ void opcontrol() {
 		if(medTowerLift == true)
 		{
 			liftingArm = true;
-			if(angleAdjuster.get_position() > -800)
+			if(angleAdjuster.get_position() > -850)
 			{
 				angleAdjuster.move(-95);
 			}
 			else
 			{
 				angleAdjuster.move(0);
-				if(arm.get_position() > -2550)
+				if(arm.get_position() > -2450)
 				{
 					arm.move(-127);
 				}
@@ -156,7 +157,7 @@ void opcontrol() {
 			else
 			{
 				angleAdjuster.move(0);
-				if(arm.get_position() > -1750)
+				if(arm.get_position() > -1550)
 				{
 					arm.move(-127);
 				}

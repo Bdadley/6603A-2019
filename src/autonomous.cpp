@@ -7,11 +7,10 @@ double DPI = 28.64788977; //Degrees that the wheels need to turn to move the rob
 bool finishedLifting = false; //Set to true whenever the arms have been lifted in order to prevent anything else from moving
 int startingDegrees = 0; //Rotation that the robot starts at whenever it makes a turn
 
-
 //PID Coefficients
-double kP = 0.7; //Proportional Coefficient
-double kI = 0.000002; //Integral Coefficient
-double kD = 50; //Derivative Coefficient
+double kP = 1.0; //Proportional Coefficient
+double kI = 0; //0.000002; //Integral Coefficient
+double kD = 300; //Derivative Coefficient
 
 // Effects of Increasing Coefficients
 //-------------------------------------
@@ -46,12 +45,26 @@ void move(int distance, int mySpeed=64) //+ = forwards, - = backwards.
       backRight.move(tempSpeed);
       frontLeft.move(tempSpeed);
       frontRight.move(tempSpeed);
-      tempSpeed+=4;
+      tempSpeed+=3;
       pros::delay(50);
     }
   }
 
-  if((abs(mySpeed - backLeft.get_actual_velocity()) <= 5)) //NEW
+  if(distance > 0)
+  {
+    if((abs(mySpeed - backLeft.get_actual_velocity()) <= 5)) //NEW
+    {
+      frontLeft.move_absolute(distance * DPI, mySpeed); backLeft.move_absolute(distance * DPI, mySpeed); //Move left side the desired distance at the desired speed
+      frontRight.move_absolute(distance * DPI, mySpeed); backRight.move_absolute(distance * DPI, mySpeed); //Move right side the desired distance at the desired speed
+      pros::delay(500);
+      while(abs(backLeft.get_actual_velocity()) > 2 && abs(backRight.get_actual_velocity()) > 2 && abs(backLeft.get_position()) < abs(distance) * DPI && abs(backRight.get_position()) < abs(distance) * DPI) //While the robot has not reached its destination, keep moving
+      { pros::delay(2); }
+
+      frontLeft.move(0); frontRight.move(0); backLeft.move(0); backRight.move(0); //Stop all motors
+      pros::delay(200);
+    }
+  }
+  else
   {
     frontLeft.move_absolute(distance * DPI, mySpeed); backLeft.move_absolute(distance * DPI, mySpeed); //Move left side the desired distance at the desired speed
     frontRight.move_absolute(distance * DPI, mySpeed); backRight.move_absolute(distance * DPI, mySpeed); //Move right side the desired distance at the desired speed
@@ -77,16 +90,13 @@ void turn(int degrees)
   double prevError = 0;
   double speed = 0;
   bool pidRunning = true;
-  double countdown = 2222.222222 * abs(degrees);
+  long startTime = pros::c::millis();
+  long timer = 0;
+  bool timerBool = true;
 
   //Control loop
-  while(pidRunning)
+  while(abs(error) > 2)//qtimer <= 1000)
   {
-    //pros::lcd::set_text(3, std::to_string(error));
-    //pros::lcd::set_text(5, std::to_string(integral));
-    //pros::lcd::set_text(6, std::to_string(derivative));
-    //pros::lcd::set_text(7, std::to_string(countdown));
-
     error = degrees - imu.get_rotation(); //Calculate the error (P)
     integral = integral + error; //Calculate the integral
 
@@ -105,25 +115,12 @@ void turn(int degrees)
     frontLeft.move_velocity(speed);
     backRight.move_velocity(-speed);
     frontRight.move_velocity(-speed);
-    if(error < 2)
-    {
-      countdown--;
-      if(countdown < 0)
-      {
-        pidRunning = false;
-      }
-    }
-    else
-    {
-      countdown = 2222.222222 * abs(degrees);
-    }
   }
 
   frontLeft.move(0); frontRight.move(0); backLeft.move(0); backRight.move(0); //Stop the robot from turning any further
   pros::delay(200);
 }
 
-//Imprecise, but faster, turn
 void impTurn(int time, int direction)
 {
   if(direction == 1 || direction == -1)
@@ -142,6 +139,7 @@ void impTurn(int time, int direction)
 
 
 }
+
 //Intake Cubes
 void startIntake()
 {
@@ -245,25 +243,25 @@ void maintain()
 
 
 //Stack whatever cubes are in the tray and move backwards finDistance inches after doing so
-void dispose(int finDistance=15)
+void dispose(int finDistance=15, int finSpeed=32, int time=250)
 {
   finishedLifting = false; //Used for compatibility with tower-stacking functions
   intake1.move(0); intake2.move(0); //Stop the intake (in case it is moving already)
-  reverseIntake(275); //Lowers the cube into the robot's "hand," allowing for easier stacking
+  reverseIntake(time); //Lowers the cube into the robot's "hand," allowing for easier stacking
   stopIntake(); //Stop last command
-  raiseTray(100); //Raise the tray to the vertical position in order to stack
+  raiseTray(85); //Raise the tray to the vertical position in order to stack
 
   backLeft.move(31); backRight.move(32); frontLeft.move(32); frontRight.move(32); //Move forward in order to stabilize the stack
-  pros::delay(450);
+  pros::delay(350);
 
-  backLeft.move(0); backRight.move(0); frontLeft.move(0); frontRight.move(0); //Stop Movement
-  pros::delay(1000);
+  //backLeft.move(0); backRight.move(0); frontLeft.move(0); frontRight.move(0); //Stop Movement
+  //pros::delay(300);
 
-  backLeft.move(-19); backRight.move(-20); frontLeft.move(-20); frontRight.move(-20);  //Move Backwards
-  pros::delay(200);
+  //backLeft.move(-19); backRight.move(-20); frontLeft.move(-20); frontRight.move(-20);  //Move Backwards
+  //pros::delay(200);
 
-  move(-finDistance); //Move backwards finDistance inches. Used for precise control over movement
-  lowerTray(120); //Lower the tray back to starting position
+  move(-finDistance, finSpeed); //Move backwards finDistance inches. Used for precise control over movement
+  lowerTray(130); //Lower the tray back to starting position
 
   backLeft.move(0); backRight.move(0); frontLeft.move(0); frontRight.move(0); //Stop robot. (In case it is still moving for whatever reason)
 }
@@ -357,37 +355,45 @@ void putCubeInHand()
 //team: -1 = Red, 1 = Blue
 void autonomous()
 {
-  if(selectedAuton == 2) //Small Zone - 5 Point --- CHANGE TO "if", not "else if"!!!
+if(selectedAuton == 2) //Small Zone - 5 Point --- CHANGE TO "if", not "else if"!!!
   {
     deploy();
     startIntake();
-    move(40, 48); //Move forwards and collect line of four cubes
+    move(40, 70); //Move forwards and collect line of four cubes
     stopIntake();
     maintain(); //Hold the cubes in place
-    move(-23, 48); //Reverse so that you can turn and stack
+    move(-19, 80); //Reverse so that you can turn and stack
     turn(-135); //Turn towards small zone
-    move(14, 32); //Move into small zone
+    move(18, 60); //Move into small zone
     dispose(); //Stack all five cubes
   }
   else if(selectedAuton == 3) //Big Zone - 3 Point
   {
     deploy();
     startIntake();
-    move(19); //Move forwards and grab the first cube
-    turn(90); //Turn towards the second cube
-    move(21); //Move forwards and grab the second cube
-    turn(45); //Turn towards the big zone
-    move(5); //Move into the big zone
-    dispose(); //Stack the three stack
+    move(19, 80); //Move forwards and grab the first cube
+    turn(-90);
+    move(30, 100);
+    pros::delay(300);
+    move(-32, 100);
+    turn(-135);
+    move(18, 60);
+    dispose(15, 100, 350);
+
+    //turn(90); //Turn towards the second cube
+    //move(21); //Move forwards and grab the second cube
+    //turn(45); //Turn towards the big zone
+    //move(5); //Move into the big zone
+    //dispose(); //Stack the three stack
   }
   else if(selectedAuton == 4) //Skills
   {
-    startIntake();
-    move(112, 48);
-    turn(90);
+    startIntake(); //Start in the second row of cubes in relation to the small zone
+    move(112, 48); //Pick up the second row of cubes
+    turn(90); //Turn towards the small zone
     pros::delay(500);
     stopIntake();
-    move(26);
+    move(26); //Move
     pros::delay(500);
     impTurn(1000,-1);
     move(14);
@@ -401,7 +407,6 @@ void autonomous()
     reverseIntake(250);
     move(-10);
     mediumTowerStack();
-
   }
   else
   {
